@@ -1,9 +1,11 @@
 const mongoose = require("mongoose");
+const { mongoURI } = require("../config");
 
-mongoose.connect("mongodb://127.0.0.1:27017/booking-room-meeting", {
-    useUnifiedTopology: true,
-    useNewUrlParser: true,
+mongoose.connect(mongoURI, {
     useCreateIndex: true,
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
     useFindAndModify: false,
     // autoIndex: true
+
 });

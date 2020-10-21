@@ -15,7 +15,7 @@ const adminRole = (...roles) => {
 };
 
 // Create User
-router.post("/users", async (req, res) => {
+router.post("/users", async(req, res) => {
     try {
         const user = new User(req.body);
         const token = await user.generateAuthToken();
@@ -27,7 +27,7 @@ router.post("/users", async (req, res) => {
 });
 
 // Login User
-router.post("/users/login", async (req, res) => {
+router.post("/users/login", async(req, res) => {
     try {
         req.body.passwordConfirm = req.body.password
         const user = await User.findByCredentials(
@@ -35,7 +35,7 @@ router.post("/users/login", async (req, res) => {
             req.body.password
         );
         const token = await user.generateAuthToken();
-        
+
         res.send({ user, token });
     } catch (e) {
         res.status(403).send(e);
@@ -43,7 +43,7 @@ router.post("/users/login", async (req, res) => {
 });
 
 // User Logout
-router.post("/users/logout", auth, async (req, res) => {
+router.post("/users/logout", auth, async(req, res) => {
     try {
         req.user.tokens = req.user.tokens.filter(
             (token) => token.token !== req.user.token
@@ -56,7 +56,7 @@ router.post("/users/logout", auth, async (req, res) => {
 });
 
 // Logout for all account
-router.post("/users/logoutAll", auth, async (req, res) => {
+router.post("/users/logoutAll", auth, async(req, res) => {
     try {
         req.user.tokens = [];
         await req.user.save();
@@ -67,7 +67,7 @@ router.post("/users/logoutAll", auth, async (req, res) => {
 });
 
 // Get user by ID
-router.get("/users", auth, async (req, res) => {
+router.get("/users", auth, async(req, res) => {
     const users = await User.find({});
     try {
         users.length === 0 ? res.status(404).send() : res.send(users);
@@ -82,7 +82,7 @@ router.get("/users/me", auth, (req, res) => {
 });
 
 // Get profile by ID
-router.get("/users/:id",  async (req, res) => {
+router.get("/users/:id", async(req, res) => {
     const _id = req.params.id;
     try {
         const user = await User.findById(_id);
@@ -93,7 +93,7 @@ router.get("/users/:id",  async (req, res) => {
 });
 
 // Update current user
-router.patch("/users/me", auth, async (req, res) => {
+router.patch("/users/me", auth, async(req, res) => {
     const updates = Object.keys(req.body);
     const allowedUpdates = ["name", "age", "email", "password"];
     const isValidOperation = updates.every((update) =>
@@ -114,7 +114,7 @@ router.patch("/users/me", auth, async (req, res) => {
 });
 
 // Update user by ID
-router.patch("/users/:id",adminRole('admin'), async (req, res) => {
+router.patch("/users/:id", adminRole('admin'), async(req, res) => {
     const updates = Object.keys(req.body);
     const allowedUpdates = ["name", "age", "email", "password"];
     const isValidOperation = updates.every((update) =>
@@ -136,7 +136,7 @@ router.patch("/users/:id",adminRole('admin'), async (req, res) => {
 });
 
 // Delete current user
-router.delete("/users/me", auth, async (req, res) => {
+router.delete("/users/me", auth, async(req, res) => {
     const user = await User.findByIdAndDelete(req.user._id);
     try {
         res.status(204).send(user);
@@ -146,7 +146,7 @@ router.delete("/users/me", auth, async (req, res) => {
 });
 
 //Delete user by ID
-router.delete("/users/:id", adminRole('admin'),async (req, res) => {
+router.delete("/users/:id", adminRole('admin'), async(req, res) => {
     const user = await User.findByIdAndDelete(req.params.id);
     try {
         user ? res.status(204).send(user) : res.status(404).send();

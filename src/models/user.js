@@ -21,15 +21,6 @@ const userSchema = new mongoose.Schema({
             }
         },
     },
-    age: {
-        type: Number,
-        default: 0,
-        validate(value) {
-            if (value < 15) {
-                throw Error("Your age is not enough!");
-            }
-        },
-    },
     role: {
         type: String,
         enum: ["user", "admin"],
@@ -56,17 +47,15 @@ const userSchema = new mongoose.Schema({
             }
         },
     },
-    tokens: [
-        {
-            token: {
-                type: String,
-                required: true,
-            },
+    tokens: [{
+        token: {
+            type: String,
+            required: true,
         },
-    ],
+    }, ],
 });
 
-userSchema.methods.generateAuthToken = async function () {
+userSchema.methods.generateAuthToken = async function() {
     const user = this;
     const token = jwt.sign({ _id: user._id.toString() }, "BE02", {
         expiresIn: "7 days",
@@ -77,7 +66,7 @@ userSchema.methods.generateAuthToken = async function () {
     return token;
 };
 
-userSchema.methods.toJSON = function () {
+userSchema.methods.toJSON = function() {
     const user = this;
     const userObject = user.toObject();
 
@@ -90,7 +79,7 @@ userSchema.methods.toJSON = function () {
     return userObject;
 };
 
-userSchema.statics.findByCredentials = async (email, password) => {
+userSchema.statics.findByCredentials = async(email, password) => {
     const user = await User.findOne({ email });
 
     if (!user) {
@@ -106,7 +95,7 @@ userSchema.statics.findByCredentials = async (email, password) => {
     return user;
 };
 
-userSchema.pre("save", async function (next) {
+userSchema.pre("save", async function(next) {
     const user = this;
     if (user.isModified("password")) {
         user.password = await bcrypt.hash(user.password, 8);

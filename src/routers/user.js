@@ -95,7 +95,7 @@ router.get("/users/:id", async(req, res) => {
 // Update current user
 router.patch("/users/me", auth, async(req, res) => {
     const updates = Object.keys(req.body);
-    const allowedUpdates = ["name", "age", "email", "password"];
+    const allowedUpdates = ["name", "email", "password"];
     const isValidOperation = updates.every((update) =>
         allowedUpdates.includes(update)
     );
@@ -116,7 +116,7 @@ router.patch("/users/me", auth, async(req, res) => {
 // Update user by ID
 router.patch("/users/:id", adminRole('admin'), async(req, res) => {
     const updates = Object.keys(req.body);
-    const allowedUpdates = ["name", "age", "email", "password"];
+    const allowedUpdates = ["name", "email", "password"];
     const isValidOperation = updates.every((update) =>
         allowedUpdates.includes(update)
     );

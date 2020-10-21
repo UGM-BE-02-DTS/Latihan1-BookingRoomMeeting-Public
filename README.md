@@ -1,6 +1,6 @@
 #Epic & DB design
-![alt Epic & DB design](https://github.com/UGM-BE-02-DTS/Latihan1-BookingRoomMeeting/blob/master/src/Documentation/epic and Db design.jpg?raw=true)
+![alt Epic & DB design](https://github.com/UGM-BE-02-DTS/Latihan1-BookingRoomMeeting/blob/master/Documentation/epic%20and%20Db%20design.jpg)
 
 #how to instal
 `git clone https://github.com/UGM-BE-02-DTS/Latihan1-BookingRoomMeeting.git`
-` npm i bcryptjs express jsonwebtoken mongodb mongoose validator `
+``

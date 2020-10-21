@@ -3,11 +3,12 @@ const User = require("../models/user");
 const auth = require("../middleware/auth");
 
 const router = express.Router();
-const adminRole = (...roles) => {
+
+const adminRole = (...roles) => { //...spread operator extrak isi array 
     return (req, res, next) => {
         // roles ['admin', 'lead-guide']. role='user'
         if (!roles.includes(req.user.role)) {
-            return res.send(403)
+            return res.send(403) // error fobbriden
         }
 
         next();
@@ -55,7 +56,7 @@ router.post("/users/logout", auth, async(req, res) => {
     }
 });
 
-// Logout for all account
+// Logout for all account (all devices 1 account)
 router.post("/users/logoutAll", auth, async(req, res) => {
     try {
         req.user.tokens = [];
@@ -100,7 +101,7 @@ router.patch("/users/me", auth, async(req, res) => {
         allowedUpdates.includes(update)
     );
     if (!isValidOperation) {
-        return res.status(400).send();
+        return res.status(400).send(); // eeror not allwed
     }
     try {
         const user = await User.findById(req.user._id);

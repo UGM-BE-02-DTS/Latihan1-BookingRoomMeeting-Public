@@ -2,6 +2,10 @@ const mongoose = require("mongoose");
 const validator = require("validator");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
+const { SECRET } = require("../config.js");
+
+const kunci = SECRET.config;
+
 
 const userSchema = new mongoose.Schema({
     name: {
@@ -29,10 +33,10 @@ const userSchema = new mongoose.Schema({
     password: {
         type: String,
         required: [true, "Please input password"],
-        minlength: 7,
-        trim: true,
+        minlength: 7, // min 7 char
+        trim: true, // auto hapus spasi kiri dan kanan
         validate(value) {
-            if (value.toLowerCase().includes("password")) {
+            if (value.toLowerCase().includes("password")) { // biar gak asal input password jadi password
                 throw Error("Your password is invalid!");
             }
         },
@@ -57,8 +61,8 @@ const userSchema = new mongoose.Schema({
 
 userSchema.methods.generateAuthToken = async function() {
     const user = this;
-    const token = jwt.sign({ _id: user._id.toString() }, "BE02", {
-        expiresIn: "7 days",
+    const token = jwt.sign({ _id: user._id.toString() }, kunci, {
+        expiresIn: "7 days", // kalau mau ganti pake grammer english
     });
 
     user.tokens = user.tokens.concat({ token });
@@ -83,18 +87,19 @@ userSchema.statics.findByCredentials = async(email, password) => {
     const user = await User.findOne({ email });
 
     if (!user) {
-        throw "Unable to login";
+        throw "Unable to login"; // user belum terdaftar 
     }
 
     const isMatch = await bcrypt.compare(password, user.password);
 
     if (!isMatch) {
-        throw "Unable to login";
+        throw "Unable to login"; // password nya salah
     }
 
     return user;
 };
 
+//midleware buat hashing password
 userSchema.pre("save", async function(next) {
     const user = this;
     if (user.isModified("password")) {

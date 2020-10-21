@@ -1,6 +1,5 @@
 const jwt = require("jsonwebtoken");
 const User = require("../models/user");
-const config = require('../config.js');
 const { SECRET } = require("../config.js");
 
 const kunci = SECRET.config;
@@ -24,7 +23,7 @@ const auth = async(req, res, next) => {
         req.user.token = token;
         next();
     } catch (err) {
-        res.send({ error: "Please authenticate!" });
+        res.send({ error: "Please authenticate!" }); //di suruh relogin
     }
 };
 

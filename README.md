@@ -3,4 +3,4 @@
 
 #how to instal
 `git clone https://github.com/UGM-BE-02-DTS/Latihan1-BookingRoomMeeting.git`
-``
+ & install npm package seperti depedency

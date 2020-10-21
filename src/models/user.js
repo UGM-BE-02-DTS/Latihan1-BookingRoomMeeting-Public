@@ -7,14 +7,14 @@ const userSchema = new mongoose.Schema({
     name: {
         type: String,
         trim: true,
-        required: [true,"Please tell your name!"]
+        required: [true, "Please tell your name!"],
     },
     email: {
         type: String,
         trim: true,
         lowercase: true,
         unique: true,
-        required: [true,"Please input your password"],
+        required: [true, "Please input your password"],
         validate(value) {
             if (!validator.isEmail(value)) {
                 throw Error("Please provide a valid email address!");
@@ -32,31 +32,30 @@ const userSchema = new mongoose.Schema({
     },
     role: {
         type: String,
-        enum: ['user', 'admin'],
-        default: 'user'
-      },
+        enum: ["user", "admin"],
+        default: "user",
+    },
     password: {
         type: String,
-        required: [true,"Please input password"],
+        required: [true, "Please input password"],
         minlength: 7,
         trim: true,
         validate(value) {
             if (value.toLowerCase().includes("password")) {
-                throw Error("Your passowrd is invalid!");
+                throw Error("Your password is invalid!");
             }
         },
     },
     passwordConfirm: {
         type: String,
-        required: [true, 'Please confirm your password'],
-        validate: {
-          // This only works on CREATE and SAVE!!!
-          validator: function(el) {
-            return el === this.password;
-          },
-          message: 'Passwords are not the same!'
-        }
-      },
+        required: [false, "Please confirm your password"],
+        validate(value) {
+            // This only works on CREATE and SAVE!!!
+            if (this.password !== this.passwordConfirm) {
+                return true;
+            }
+        },
+    },
     tokens: [
         {
             token: {
@@ -67,7 +66,7 @@ const userSchema = new mongoose.Schema({
     ],
 });
 
-userSchema.methods.generateAuthToken = async function (this) {
+userSchema.methods.generateAuthToken = async function () {
     const user = this;
     const token = jwt.sign({ _id: user._id.toString() }, "BE02", {
         expiresIn: "7 days",
@@ -78,12 +77,15 @@ userSchema.methods.generateAuthToken = async function (this) {
     return token;
 };
 
-userSchema.methods.toJSON = function (this) {
+userSchema.methods.toJSON = function () {
     const user = this;
     const userObject = user.toObject();
 
-    delete userObject.password
-    delete userObject.tokens
+    delete userObject.password;
+    delete userObject.passwordConfirm;
+    delete userObject.password;
+
+    delete userObject.tokens;
 
     return userObject;
 };
@@ -104,12 +106,13 @@ userSchema.statics.findByCredentials = async (email, password) => {
     return user;
 };
 
-userSchema.pre("save", async function (this, next) {
+userSchema.pre("save", async function (next) {
     const user = this;
     if (user.isModified("password")) {
         user.password = await bcrypt.hash(user.password, 8);
+        user.passwordConfirm = await bcrypt.hash(user.passwordConfirm, 8);
     }
-
+    this.passwordConfirm = undefined;
     next();
 });
 

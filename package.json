@@ -1,7 +1,7 @@
 {
   "name": "latihan1-bookingroommeeting",
   "version": "1.0.0",
-  "description": "",
+  "description": "![alt Epic & DB design](https://github.com/UGM-BE-02-DTS/Latihan1-BookingRoomMeeting/blob/master/Documentation/epic%20and%20Db%20design.jpg)",
   "main": "index.js",
   "scripts": {
     "start": "node ./src/index.js",

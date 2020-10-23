@@ -15,6 +15,6 @@ app.use(bookRouter);
 
 // tambah path router booking dimari
 
-app.listen(PORT, () => {
-    console.log("Server is up on port " + PORT);
+app.listen(port, () => {
+    console.log("Server is up on port " + port);
 });

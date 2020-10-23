@@ -1,4 +1,4 @@
-const express = require("express"),
+const express = require("express")
 const Booking = require("../models/booking.js")
 
 //1. buat crud dasar
@@ -11,7 +11,7 @@ bookRouter.post("/booking-rooms", async(req, res) => {
     try {
         const booking = new Booking(req.body);
         await booking.save();
-        res.status(201).send({ room });
+        res.status(201).send({ booking });
     } catch (err) {
         res.status(400).send(err);
     }
@@ -19,8 +19,8 @@ bookRouter.post("/booking-rooms", async(req, res) => {
 
 // Update user by ID
 bookRouter.patch("/booking-rooms/:id", async(req, res) => {
-    const updates = Object.keys(req.body);
-    const allowedUpdates = ["iduser", "idroom", "judulMeeting", "tanggalMeeting", "sesi", "peserta"];
+    /*const updates = Booking.keys(req.body);
+    const allowedUpdates = ["idroom", "judulMeeting", "tanggalMeeting", "sesi", "peserta"];
     const isValidOperation = updates.every((update) =>
         allowedUpdates.includes(update)
     );
@@ -29,29 +29,67 @@ bookRouter.patch("/booking-rooms/:id", async(req, res) => {
     }
 
     try {
-        const booking = await Booking.findById(req.params.id);
+        const booking = await Object.findById(req.params.id);
         updates.forEach((update) => (booking[update] = req.body[update]));
 
         await booking.save();
         booking ? res.status(200).send(booking) : res.status(404).send();
     } catch (err) {
+        assert.isNotOk(error,'Promise error');
+        done();
         res.status(500).send(err.message);
+    }*/
+
+    const {iduser, idroom, judulMeeting, tanggalMeeting, sesi, peserta} = req.body
+
+    const booking = await Booking.findById(req.params.id)
+
+    if (booking) {
+        updateUser.iduser = iduser;
+        updateUser.idroom = idroom;
+        updateUser.judulMeeting = judulMeeting;
+        updateUser.tanggalMeeting = tanggalMeeting;
+        updateUser.sesi = sesi;
+        updateUser.peserta = peserta;
+ 
+        const booking = await booking.save()
+
+        res.json(booking)
+
+    }else {
+        res.status(404).json({
+            message: 'Data not found'
+        })
     }
 });
 
 
 // Delete 
 bookRouter.delete("/booking-rooms/:id", async(req, res) => {
-    const booking = await Booking.findByIdAndDelete(req.params._id);
+    /*const booking = await Booking.findByIdAndDelete(req.params._id);
     try {
-        user ? res.status(204).send(booking) : res.status(404).send();
+        booking ? res.status(204).send(booking) : res.status(404).send();
     } catch (err) {
         res.status(500).send(err);
+    }*/
+
+    const booking = await Booking.findById(req.params.id)
+
+    if(booking) {
+        await booking.remove()
+        res.json({
+            message: 'Data removed'
+        })
+
+    }else {
+        res.status(404).json({
+            message: 'Data not found'
+        })
     }
 });
 
 
-// get all rooms
+// get all booking
 bookRouter.get('/get-booking', async(req, res) => {
     const booking = await Booking.find({})
     if (booking) {

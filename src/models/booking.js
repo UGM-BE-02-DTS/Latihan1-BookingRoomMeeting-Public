@@ -20,7 +20,7 @@ const bookSchema = new mongoose.Schema({
         required: [true, "Please tell your topic meeting!"],
     },
     tanggalmeeting: {
-        type: Date,
+        type: String,
         trim: true,
         required: [true, "Please tell your date meeting!"],
     },
@@ -37,6 +37,6 @@ const bookSchema = new mongoose.Schema({
 
 });
 
-const Booking = mongoose.model('Room', bookSchema);
+const Booking = mongoose.model('Booking', bookSchema);
 
 module.exports = Booking;

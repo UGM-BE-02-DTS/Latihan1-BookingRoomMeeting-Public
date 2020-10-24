@@ -1,18 +1,68 @@
 const express = require("express");
 const Room = require("../models/room");
+const multer = require('multer');
 
 
 const roomRouter = express.Router();
 
-roomRouter.post("/rooms", async(req, res) => {
+
+
+const storage = multer.diskStorage({
+    destination: function(req, file, cb) {
+        cb(null, './uploads/');
+    },
+    filename: function(req, file, cb) {
+        cb(null, Date.now() + file.originalname)
+    }
+});
+
+const fileFilter = (req, file, cb) => {
+    // reject a file
+    if (file.mimetype === 'image/jpeg' || file.mimetype === 'image/png') {
+        cb(null, true);
+    } else {
+        cb(null, false);
+    }
+};
+
+const upload = multer({
+    storage: storage,
+    limits: {
+        //fileSize: 1024 * 1024 * 5
+    },
+    fileFilter: fileFilter
+});
+
+
+
+roomRouter.post("/rooms", upload.single('photo'), async(req, res) => {
     try {
-        const room = new Room(req.body);
+        const room = new Room({
+            //_id: new mongoose.Types.ObjectId(),
+            roomname: req.body.nama,
+            roomdetail: req.body.detail,
+            roomphoto: req.file.path,
+            iduser: "test"
+        });
+        console.log(room);
         await room.save();
-        res.status(201).send({ room });
+        res.status(201).json({
+            message: "Created Room successfully",
+            CreatedRoom: {
+                roomname: room.roomname,
+                roomdetail: room.roomdetail,
+                _id: room._id,
+                request: {
+                    type: 'GET',
+                    url: "http://localhost:3000/rooms/" + room._id
+                }
+            }
+        })
     } catch (err) {
         res.status(400).send(err);
     }
 });
+
 
 // Update user by ID
 roomRouter.patch("/rooms/:id", async(req, res) => {

@@ -17,16 +17,26 @@ const roomSchema = new mongoose.Schema({
         type: String, //tambah untuk history yang input
         required: [true, "Please relogin!"] // gak perlu kayak nya cuma tambahin aja
     },
-    booking:{
-        type:Boolean,
+    booking: {
+        type: Boolean,
         default: false
     },
-    reference:{
+    reference: {
         type: String,
-        default:"any",
-        ref:"User",
+        default: "any",
+        ref: "User",
+    },
+    meetingdate: {
+        type: String,
+        trim: true,
+        required: [true, "Please tell your date meeting!"],
+    },
+    session: {
+        type: String,
+        trim: true,
+        required: [true, "Please tell your session!"],
     }
-},{timestamps:true});
+}, { timestamps: true });
 
 const Room = mongoose.model('Room', roomSchema);
 

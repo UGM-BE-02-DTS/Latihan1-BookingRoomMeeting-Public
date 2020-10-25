@@ -72,10 +72,6 @@ roomRouter.post("/rooms/", auth, adminRole('admin'), async(req, res) => {
     console.log("Test admin")
     try {
         const room = new Room({
-            // roomname: req.body.roomname,
-            // roomdetail: req.body.roomdetail,
-            // roomphoto: req.body.roomphoto,
-            // iduser: req.user._id
             ...req.body,
         });
         await room.save();
@@ -102,7 +98,7 @@ roomRouter.post("/rooms/", auth, adminRole('admin'), async(req, res) => {
 // Update Room by ID
 roomRouter.patch("/rooms/:id", auth, adminRole('admin'), async(req, res) => {
     const updates = Object.keys(req.body);
-    const allowedUpdates = ["roomname", "roomdetail", "roomphoto"];
+    const allowedUpdates = ["roomname", "roomdetail", "roomphoto", ];
     const isValidOperation = updates.every((update) =>
         allowedUpdates.includes(update)
     );
@@ -147,29 +143,19 @@ roomRouter.delete("/rooms/:id", auth, adminRole('admin'), async(req, res) => {
 // Get /rooms?sortBy=createdAt:asc // desc
 // Example /rooms?booking=false&limit=2&skip=2&sortBy=createdAt:asc
 roomRouter.get("/rooms", auth, async(req, res) => {
-    const match = {booking:false};
+    const match = { booking: false };
     const sort = {}
 
 
-    // if(req.query.booking){
-    //     match.booking = req.query.booking === "true";
-    // }
-
-    if(req.query.sortBy) {
+    if (req.query.sortBy) {
         const parts = req.query.sortBy.split(":");
         sort[parts[0]] = parts[1] === "desc" ? -1 : 1;
     }
 
-    try{
-        // const room = await Room.find({});
-        // if (room) {
-        //     res.json(room);
-        // } else {
-        //     res.status(404).json({ message: "room not found" });
-        // }
+    try {
         await req.user
             .populate({
-                path:"rooms",
+                path: "rooms",
                 match,
                 options: {
                     limit: parseInt(req.query.limit),
@@ -178,8 +164,8 @@ roomRouter.get("/rooms", auth, async(req, res) => {
                 },
             })
             .execPopulate();
-            req.user.rooms ? res.send(req.user.rooms) : res.status(404).send();
-    }catch(err){
+        req.user.rooms ? res.send(req.user.rooms) : res.status(404).send();
+    } catch (err) {
         res.status(500).send(err.message)
     }
 });

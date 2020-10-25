@@ -6,7 +6,7 @@ const bookRouter = express.Router();
 
 
 // Create Booking
-bookRouter.patch("/booking-room/:id",auth, async(req, res) => {
+bookRouter.patch("/booking-room/:id", auth, async(req, res) => {
     try {
         const bookingRoom = await Room.findById(req.params.id);
         bookingRoom.booking = true
@@ -20,19 +20,19 @@ bookRouter.patch("/booking-room/:id",auth, async(req, res) => {
 
 
 // get all booking
-bookRouter.get('/get-bookings',auth, async(req, res) => {
-    const match = {booking:true};
+bookRouter.get('/get-bookings', auth, async(req, res) => {
+    const match = { booking: true };
     const sort = {}
 
-    if(req.query.sortBy) {
+    if (req.query.sortBy) {
         const parts = req.query.sortBy.split(":");
         sort[parts[0]] = parts[1] === "desc" ? -1 : 1;
     }
 
-    try{
+    try {
         await req.user
             .populate({
-                path:"rooms",
+                path: "rooms",
                 match,
                 options: {
                     limit: parseInt(req.query.limit),
@@ -41,10 +41,11 @@ bookRouter.get('/get-bookings',auth, async(req, res) => {
                 },
             })
             .execPopulate();
-            req.user.rooms ? res.send(req.user.rooms) : res.status(404).send();
-    }catch(err){
+        req.user.rooms ? res.send(req.user.rooms) : res.status(404).send();
+    } catch (err) {
         res.status(500).send(err.message)
     }
 })
+
 
 module.exports = bookRouter;

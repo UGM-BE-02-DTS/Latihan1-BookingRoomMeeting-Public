@@ -147,13 +147,13 @@ roomRouter.delete("/rooms/:id", auth, adminRole('admin'), async(req, res) => {
 // Get /rooms?sortBy=createdAt:asc // desc
 // Example /rooms?booking=false&limit=2&skip=2&sortBy=createdAt:asc
 roomRouter.get("/rooms", auth, async(req, res) => {
-    const match = {};
+    const match = {booking:false};
     const sort = {}
 
 
-    if(req.query.booking){
-        match.booking = req.query.booking === "true";
-    }
+    // if(req.query.booking){
+    //     match.booking = req.query.booking === "true";
+    // }
 
     if(req.query.sortBy) {
         const parts = req.query.sortBy.split(":");

@@ -61,6 +61,7 @@ const userSchema = new mongoose.Schema({
 
 userSchema.methods.generateAuthToken = async function() {
     const user = this;
+    console.log(kunci)
     const token = jwt.sign({ _id: user._id.toString() }, kunci, {
         expiresIn: "7 days", // kalau mau ganti pake grammer english
     });

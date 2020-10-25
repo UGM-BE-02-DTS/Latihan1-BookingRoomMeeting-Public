@@ -1,24 +1,22 @@
 const express = require("express");
 const Room = require("../models/room");
-const multer = require('multer');
-
+const multer = require("multer");
 
 const roomRouter = express.Router();
 
 
-
 const storage = multer.diskStorage({
-    destination: function(req, file, cb) {
-        cb(null, './uploads/');
+    destination: function (req, file, cb) {
+        cb(null, "./uploads/");
     },
-    filename: function(req, file, cb) {
-        cb(null, Date.now() + file.originalname)
-    }
+    filename: function (req, file, cb) {
+        cb(null, Date.now() + file.originalname);
+    },
 });
 
 const fileFilter = (req, file, cb) => {
     // reject a file
-    if (file.mimetype === 'image/jpeg' || file.mimetype === 'image/png') {
+    if (file.mimetype === "image/jpeg" || file.mimetype === "image/png") {
         cb(null, true);
     } else {
         cb(null, false);
@@ -30,22 +28,30 @@ const upload = multer({
     limits: {
         //fileSize: 1024 * 1024 * 5
     },
-    fileFilter: fileFilter
+    fileFilter: fileFilter,
 });
 
-
-
-roomRouter.post("/rooms", upload.single('photo'), async(req, res) => {
+roomRouter.post("/rooms", upload.single('photo'), async (req, res) => {
+// roomRouter.post("/rooms", (req, res) => {
     try {
+        console.log(req.body);
+        console.log(req.body.detail);
+        console.log(req.files);
+
+        req.files ? console.log("Ada") : console.log("Tidak ada")
+
+        // res.send(req.files)
+
         const room = new Room({
             //_id: new mongoose.Types.ObjectId(),
-            roomname: req.body.nama,
+            roomname: req.body.name,
             roomdetail: req.body.detail,
-            roomphoto: req.file.path,
+            roomphoto: req.body.files,
             iduser: "test"
         });
-        console.log(room);
-        await room.save();
+
+        // console.log(room);
+        // await room.save();
         res.status(201).json({
             message: "Created Room successfully",
             CreatedRoom: {
@@ -63,9 +69,8 @@ roomRouter.post("/rooms", upload.single('photo'), async(req, res) => {
     }
 });
 
-
 // Update user by ID
-roomRouter.patch("/rooms/:id", async(req, res) => {
+roomRouter.patch("/rooms/:id", async (req, res) => {
     const updates = Object.keys(req.body);
     const allowedUpdates = ["roomname", "roomdetail", "roomphoto"];
     const isValidOperation = updates.every((update) =>
@@ -84,12 +89,10 @@ roomRouter.patch("/rooms/:id", async(req, res) => {
     } catch (err) {
         res.status(500).send(err.message);
     }
-
 });
 
-
 // Delete rooms
-roomRouter.delete("/rooms:id", async(req, res) => {
+roomRouter.delete("/rooms:id", async (req, res) => {
     const room = await Room.findByIdAndDelete(req.params._id);
     try {
         user ? res.status(204).send(room) : res.status(404).send();
@@ -98,15 +101,14 @@ roomRouter.delete("/rooms:id", async(req, res) => {
     }
 });
 
-
 // get all rooms
-roomRouter.get('/rooms', async(req, res) => {
-    const room = await Room.find({})
+roomRouter.get("/rooms", async (req, res) => {
+    const room = await Room.find({});
     if (room) {
-        res.json(room)
+        res.json(room);
     } else {
-        res.status(404).json({ message: 'room not found' })
+        res.status(404).json({ message: "room not found" });
     }
-})
+});
 
 module.exports = roomRouter;

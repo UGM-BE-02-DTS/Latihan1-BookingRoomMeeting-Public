@@ -30,7 +30,7 @@ const fileFilter = (req, file, cb) => {
 const upload = multer({
     storage: storage,
     limits: {
-        //fileSize: 1024 * 1024 * 5
+        fileSize: 1024 * 1024 * 5
     },
     fileFilter: fileFilter,
 });
@@ -50,7 +50,7 @@ const adminRole = (...roles) => { //...spread operator extrak isi array
 //upload photo
 
 roomRouter.post("/rooms/upload", auth, adminRole('admin'), upload.single('photo'), (req, res, next) => {
-    // console.log(req.file);
+    console.log(req.file);
     if (!req.file) {
         res.status(500);
         return next(Error);
@@ -77,8 +77,6 @@ roomRouter.post("/rooms/", auth, adminRole('admin'), async(req, res) => {
             iduser: req.user._id
         });
         await room.save();
-        res.status(201).send({ room });
-    } catch (err) {
         res.status(201).json({
             message: "Created Room successfully",
             CreatedRoom: {
@@ -93,6 +91,8 @@ roomRouter.post("/rooms/", auth, adminRole('admin'), async(req, res) => {
                 }
             }
         });
+    } catch (err) {
+        res.status(400).send(err);
     }
 });
 
@@ -113,7 +113,15 @@ roomRouter.patch("/rooms/:id", auth, adminRole('admin'), async(req, res) => {
         updates.forEach((update) => (room[update] = req.body[update]));
 
         await room.save();
-        room ? res.status(200).send(room) : res.status(404).send();
+        room ? res.status(200).json({
+            room,
+            ViewPhoto: {
+                request: {
+                    type: 'GET',
+                    url: 'http://localhost:3000/uploads/' + room.roomphoto
+                }
+            }
+        }) : res.status(404).send();
     } catch (err) {
         res.status(500).send(err.message);
     }
@@ -138,6 +146,24 @@ roomRouter.get("/rooms", async(req, res) => {
         res.json(room);
     } else {
         res.status(404).json({ message: "room not found" });
+    }
+});
+
+roomRouter.get("/rooms/:id", async(req, res) => {
+    const _id = req.params.id;
+    try {
+        const room = await Room.findById(_id);
+        room ? res.status(200).json({
+            room,
+            ViewPhoto: {
+                request: {
+                    type: 'GET',
+                    url: 'http://localhost:3000/uploads/' + room.roomphoto
+                }
+            }
+        }) : res.status(404).send();
+    } catch (err) {
+        res.status(500).send(err.message);
     }
 });
 

@@ -1,10 +1,13 @@
 const express = require("express");
 const Room = require("../models/room");
-const multer = require("multer");
+const multer = require('multer');
+const auth = require("../middleware/auth");
+
 
 const roomRouter = express.Router();
 
 
+//multer setup output dan filename
 const storage = multer.diskStorage({
     destination: function (req, file, cb) {
         cb(null, "./uploads/");
@@ -14,6 +17,7 @@ const storage = multer.diskStorage({
     },
 });
 
+//filter image only
 const fileFilter = (req, file, cb) => {
     // reject a file
     if (file.mimetype === "image/jpeg" || file.mimetype === "image/png") {
@@ -22,7 +26,7 @@ const fileFilter = (req, file, cb) => {
         cb(null, false);
     }
 };
-
+//multer upload
 const upload = multer({
     storage: storage,
     limits: {
@@ -31,46 +35,65 @@ const upload = multer({
     fileFilter: fileFilter,
 });
 
-roomRouter.post("/rooms", upload.single('photo'), async (req, res) => {
-// roomRouter.post("/rooms", (req, res) => {
+//validasi admin role
+const adminRole = (...roles) => { //...spread operator extrak isi array 
+    return (req, res, next) => {
+        // roles ['admin', 'lead-guide']. role='user'
+        if (!roles.includes(req.user.role)) {
+            return res.send(403) // error fobbriden
+        }
+
+        next();
+    };
+};
+
+//upload photo
+
+roomRouter.post("/rooms/upload", auth, adminRole('admin'), upload.single('photo'), (req, res, next) => {
+    // console.log(req.file);
+    if (!req.file) {
+        res.status(500);
+        return next(Error);
+    }
+    res.status(201).json({
+        message: "Upload Photo rooms successfully",
+        pathphoto: req.file.path,
+        ViewPhoto: {
+            request: {
+                type: 'GET',
+                url: 'http://localhost:3000/uploads/' + req.file.filename
+            }
+        }
+    })
+})
+
+//create rooms
+roomRouter.post("/rooms/", adminRole('admin'), async(req, res) => {
     try {
-        console.log(req.body);
-        console.log(req.body.detail);
-        console.log(req.files);
-
-        req.files ? console.log("Ada") : console.log("Tidak ada")
-
-        // res.send(req.files)
-
-        const room = new Room({
-            //_id: new mongoose.Types.ObjectId(),
-            roomname: req.body.name,
-            roomdetail: req.body.detail,
-            roomphoto: req.body.files,
-            iduser: "test"
-        });
-
-        // console.log(room);
-        // await room.save();
+        const room = new Room(req.body);
+        await room.save();
+        res.status(201).send({ room });
+    } catch (err) {
         res.status(201).json({
             message: "Created Room successfully",
             CreatedRoom: {
+                _id: room._id,
                 roomname: room.roomname,
                 roomdetail: room.roomdetail,
-                _id: room._id,
+                userid: room.userid,
+
                 request: {
                     type: 'GET',
                     url: "http://localhost:3000/rooms/" + room._id
                 }
             }
-        })
-    } catch (err) {
-        res.status(400).send(err);
+        });
     }
 });
 
-// Update user by ID
-roomRouter.patch("/rooms/:id", async (req, res) => {
+
+// Update Room by ID
+roomRouter.patch("/rooms/:id", adminRole('admin'), async(req, res) => {
     const updates = Object.keys(req.body);
     const allowedUpdates = ["roomname", "roomdetail", "roomphoto"];
     const isValidOperation = updates.every((update) =>
@@ -92,12 +115,12 @@ roomRouter.patch("/rooms/:id", async (req, res) => {
 });
 
 // Delete rooms
-roomRouter.delete("/rooms:id", async (req, res) => {
+roomRouter.delete("/rooms:id", adminRole('admin'), async(req, res) => {
     const room = await Room.findByIdAndDelete(req.params._id);
     try {
         user ? res.status(204).send(room) : res.status(404).send();
     } catch (err) {
-        res.status(500).send(err);
+        res.status(500).send(err.message);
     }
 });
 

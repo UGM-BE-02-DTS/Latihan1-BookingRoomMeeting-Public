@@ -6,7 +6,6 @@ const { SECRET } = require("../config.js");
 
 const kunci = SECRET.config;
 
-
 const userSchema = new mongoose.Schema({
     name: {
         type: String,
@@ -36,7 +35,8 @@ const userSchema = new mongoose.Schema({
         minlength: 7, // min 7 char
         trim: true, // auto hapus spasi kiri dan kanan
         validate(value) {
-            if (value.toLowerCase().includes("password")) { // biar gak asal input password jadi password
+            if (value.toLowerCase().includes("password")) {
+                // biar gak asal input password jadi password
                 throw Error("Your password is invalid!");
             }
         },
@@ -51,18 +51,20 @@ const userSchema = new mongoose.Schema({
             }
         },
     },
-    tokens: [{
-        token: {
-            type: String,
-            required: true,
+    tokens: [
+        {
+            token: {
+                type: String,
+                required: true,
+            },
         },
-    }, ],
+    ],
 });
 
-userSchema.methods.generateAuthToken = async function() {
+userSchema.methods.generateAuthToken = async function () {
     const user = this;
-    console.log(kunci)
-    const token = jwt.sign({ _id: user._id.toString() }, kunci, {
+    const token = jwt.sign({ _id: user._id.toString() }, "DJAWAADALAHKJOENCI", {
+        //JANGAN LUPA UPDATE KE DYNAMIC SECRET
         expiresIn: "7 days", // kalau mau ganti pake grammer english
     });
 
@@ -71,7 +73,7 @@ userSchema.methods.generateAuthToken = async function() {
     return token;
 };
 
-userSchema.methods.toJSON = function() {
+userSchema.methods.toJSON = function () {
     const user = this;
     const userObject = user.toObject();
 
@@ -84,11 +86,12 @@ userSchema.methods.toJSON = function() {
     return userObject;
 };
 
-userSchema.statics.findByCredentials = async(email, password) => {
+//LOGIC CEK LOGIN
+userSchema.statics.findByCredentials = async (email, password) => {
     const user = await User.findOne({ email });
 
     if (!user) {
-        throw "Unable to login"; // user belum terdaftar 
+        throw "Unable to login"; // user belum terdaftar
     }
 
     const isMatch = await bcrypt.compare(password, user.password);
@@ -101,13 +104,16 @@ userSchema.statics.findByCredentials = async(email, password) => {
 };
 
 //midleware buat hashing password
-userSchema.pre("save", async function(next) {
+userSchema.pre("save", async function (next) {
     const user = this;
+    console.log(user);
     if (user.isModified("password")) {
         user.password = await bcrypt.hash(user.password, 8);
+    }
+    if (user.passwordConfirm) {
         user.passwordConfirm = await bcrypt.hash(user.passwordConfirm, 8);
     }
-    this.passwordConfirm = undefined;
+    // this.passwordConfirm = undefined;
     next();
 });
 

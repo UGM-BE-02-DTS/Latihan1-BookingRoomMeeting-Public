@@ -59,6 +59,16 @@ const userSchema = new mongoose.Schema({
             },
         },
     ],
+    reference:{
+        type: String,
+        default:"any"
+    }
+},{timestamps:true});
+
+userSchema.virtual("rooms", {
+    ref: "Room",
+    localField: "reference",
+    foreignField: "reference",
 });
 
 userSchema.methods.generateAuthToken = async function () {

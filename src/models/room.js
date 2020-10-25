@@ -16,8 +16,17 @@ const roomSchema = new mongoose.Schema({
     iduser: {
         type: String, //tambah untuk history yang input
         required: [true, "Please relogin!"] // gak perlu kayak nya cuma tambahin aja
+    },
+    booking:{
+        type:Boolean,
+        default: false
+    },
+    reference:{
+        type: String,
+        default:"any",
+        ref:"User",
     }
-});
+},{timestamps:true});
 
 const Room = mongoose.model('Room', roomSchema);
 

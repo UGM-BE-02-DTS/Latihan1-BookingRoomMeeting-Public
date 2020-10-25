@@ -61,7 +61,7 @@ const userSchema = new mongoose.Schema({
 
 userSchema.methods.generateAuthToken = async function() {
     const user = this;
-    const token = jwt.sign({ _id: user._id.toString() }, 'kunci', {
+    const token = jwt.sign({ _id: user._id.toString() }, 'kunci', { //JANGAN LUPA UPDATE KE DYNAMIC SECRET
         expiresIn: "7 days", // kalau mau ganti pake grammer english
     });
 
@@ -83,6 +83,8 @@ userSchema.methods.toJSON = function() {
     return userObject;
 };
 
+
+//LOGIC CEK LOGIN
 userSchema.statics.findByCredentials = async(email, password) => {
     const user = await User.findOne({ email });
 

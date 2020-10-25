@@ -10,17 +10,17 @@ const roomRouter = express.Router();
 //multer setup output dan filename
 const storage = multer.diskStorage({
     destination: function(req, file, cb) {
-        cb(null, './uploads/');
+        cb(null, "./uploads/");
     },
     filename: function(req, file, cb) {
-        cb(null, Date.now() + file.originalname)
-    }
+        cb(null, Date.now() + file.originalname);
+    },
 });
 
 //filter image only
 const fileFilter = (req, file, cb) => {
     // reject a file
-    if (file.mimetype === 'image/jpeg' || file.mimetype === 'image/png') {
+    if (file.mimetype === "image/jpeg" || file.mimetype === "image/png") {
         cb(null, true);
     } else {
         cb(null, false);
@@ -32,7 +32,7 @@ const upload = multer({
     limits: {
         //fileSize: 1024 * 1024 * 5
     },
-    fileFilter: fileFilter
+    fileFilter: fileFilter,
 });
 
 //validasi admin role
@@ -50,7 +50,7 @@ const adminRole = (...roles) => { //...spread operator extrak isi array
 //upload photo
 
 roomRouter.post("/rooms/upload", auth, adminRole('admin'), upload.single('photo'), (req, res, next) => {
-    console.log(req.file);
+    // console.log(req.file);
     if (!req.file) {
         res.status(500);
         return next(Error);
@@ -117,9 +117,7 @@ roomRouter.patch("/rooms/:id", auth, adminRole('admin'), async(req, res) => {
     } catch (err) {
         res.status(500).send(err.message);
     }
-
 });
-
 
 // Delete rooms
 roomRouter.delete("/rooms/:id", auth, adminRole('admin'), async(req, res) => {
@@ -134,13 +132,13 @@ roomRouter.delete("/rooms/:id", auth, adminRole('admin'), async(req, res) => {
 
 
 // get all rooms
-roomRouter.get('/rooms', async(req, res) => {
-    const room = await Room.find({})
+roomRouter.get("/rooms", async(req, res) => {
+    const room = await Room.find({});
     if (room) {
-        res.json(room)
+        res.json(room);
     } else {
-        res.status(404).json({ message: 'room not found' })
+        res.status(404).json({ message: "room not found" });
     }
-})
+});
 
 module.exports = roomRouter;

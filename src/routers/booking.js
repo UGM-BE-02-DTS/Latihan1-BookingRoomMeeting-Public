@@ -1,4 +1,5 @@
-const express = require("express")
+const express = require("express");
+const auth = require("../middleware/auth.js");
 const Booking = require("../models/booking.js")
 
 //1. buat crud dasar
@@ -7,7 +8,7 @@ const Booking = require("../models/booking.js")
 const bookRouter = express.Router();
 
 
-bookRouter.post("/booking-rooms", async(req, res) => {
+bookRouter.post("/booking-rooms", auth, async(req, res) => {
     try {
         const booking = new Booking(req.body);
         await booking.save();
@@ -18,7 +19,7 @@ bookRouter.post("/booking-rooms", async(req, res) => {
 });
 
 // Update user by ID
-bookRouter.patch("/booking-rooms/:id", async(req, res) => {
+bookRouter.patch("/booking-rooms/:id",auth, async(req, res) => {
     /*const updates = Booking.keys(req.body);
     const allowedUpdates = ["idroom", "judulMeeting", "tanggalMeeting", "sesi", "peserta"];
     const isValidOperation = updates.every((update) =>
@@ -65,7 +66,7 @@ bookRouter.patch("/booking-rooms/:id", async(req, res) => {
 
 
 // Delete 
-bookRouter.delete("/booking-rooms/:id", async(req, res) => {
+bookRouter.delete("/booking-rooms/:id",auth, async(req, res) => {
     /*const booking = await Booking.findByIdAndDelete(req.params._id);
     try {
         booking ? res.status(204).send(booking) : res.status(404).send();
@@ -90,7 +91,7 @@ bookRouter.delete("/booking-rooms/:id", async(req, res) => {
 
 
 // get all booking
-bookRouter.get('/get-booking', async(req, res) => {
+bookRouter.get('/get-booking',auth, async(req, res) => {
     const booking = await Booking.find({})
     if (booking) {
         res.json(booking)

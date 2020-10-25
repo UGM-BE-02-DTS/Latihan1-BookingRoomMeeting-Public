@@ -1,14 +1,16 @@
 const express = require("express");
 const User = require("../models/user");
 const auth = require("../middleware/auth");
+const { update } = require("../models/user");
 
 const router = express.Router();
 
-const adminRole = (...roles) => { //...spread operator extrak isi array 
+const adminRole = (...roles) => {
+    //...spread operator extrak isi array
     return (req, res, next) => {
         // roles ['admin', 'lead-guide']. role='user'
         if (!roles.includes(req.user.role)) {
-            return res.send(403) // error fobbriden
+            return res.send(403); // error fobbriden
         }
 
         next();
@@ -30,7 +32,7 @@ router.post("/users", async(req, res) => {
 // Login User
 router.post("/users/login", async(req, res) => {
     try {
-        req.body.passwordConfirm = req.body.password
+        req.body.passwordConfirm = req.body.password;
         const user = await User.findByCredentials(
             req.body.email,
             req.body.password
@@ -50,9 +52,9 @@ router.post("/users/logout", auth, async(req, res) => {
             (token) => token.token !== req.user.token
         );
         await req.user.save();
-        res.send();
+        res.status(201).send("success logout:", { user, token });
     } catch (err) {
-        res.status(500).send();
+        res.status(500).send("invalid token");
     }
 });
 
@@ -67,13 +69,13 @@ router.post("/users/logoutAll", auth, async(req, res) => {
     }
 });
 
-// Get user by ID
-router.get("/users", auth, async(req, res) => {
+// Get user all
+router.get("/users", auth, adminRole("admin"), async(req, res) => {
     const users = await User.find({});
     try {
         users.length === 0 ? res.status(404).send() : res.send(users);
     } catch (err) {
-        res.status(500).send(err.message);
+        res.status(500).send("err.message");
     }
 });
 
@@ -105,8 +107,9 @@ router.patch("/users/me", auth, async(req, res) => {
     }
     try {
         const user = await User.findById(req.user._id);
-        updates.forEach((update) => (user[update] = req.body[update]));
-
+        updates.forEach((update) => {
+            user[update] = req.body[update];
+        });
         await user.save();
         res.status(200).send(user);
     } catch (err) {
@@ -115,7 +118,7 @@ router.patch("/users/me", auth, async(req, res) => {
 });
 
 // Update user by ID
-router.patch("/users/:id", adminRole('admin'), async(req, res) => {
+router.patch("/users/:id", auth, adminRole("admin"), async(req, res) => {
     const updates = Object.keys(req.body);
     const allowedUpdates = ["name", "email", "password"];
     const isValidOperation = updates.every((update) =>
@@ -140,19 +143,19 @@ router.patch("/users/:id", adminRole('admin'), async(req, res) => {
 router.delete("/users/me", auth, async(req, res) => {
     const user = await User.findByIdAndDelete(req.user._id);
     try {
-        res.status(204).send(user);
+        res.status(204).send("user deleted");
     } catch (err) {
-        res.status(500).send(err);
+        res.status(500).send(err.message);
     }
 });
 
 //Delete user by ID
-router.delete("/users/:id", adminRole('admin'), async(req, res) => {
+router.delete("/users/:id", auth, adminRole("admin"), async(req, res) => {
     const user = await User.findByIdAndDelete(req.params.id);
     try {
-        user ? res.status(204).send(user) : res.status(404).send();
+        user ? res.status(204).send(user) : res.status(404).send("user Not Found");
     } catch (err) {
-        res.status(500).send(err);
+        res.status(500).send("User not found / you not authorize");
     }
 });
 

@@ -13,10 +13,10 @@ const roomSchema = new mongoose.Schema({
         type: String, //string dulu ntar di update 
         required: [true, "Please upload room photo!"]
     },
-    // iduser: {
-    //     type: String, //tambah untuk history yang input
-    //     required: [true, "Please relogin!"] // gak perlu kayak nya cuma tambahin aja
-    // }
+    iduser: {
+        type: String, //tambah untuk history yang input
+        required: [true, "Please relogin!"] // gak perlu kayak nya cuma tambahin aja
+    }
 });
 
 const Room = mongoose.model('Room', roomSchema);

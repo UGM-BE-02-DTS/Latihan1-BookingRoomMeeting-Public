@@ -1,14 +1,12 @@
 const jwt = require("jsonwebtoken");
 const User = require("../models/user");
-const { SECRET } = require("../config.js");
 
-const kunci = SECRET.config;
-
+//AUTHENTIKASI
 const auth = async(req, res, next) => {
     try {
         const token = req.header("Authorization").replace("Bearer ", "");
         // console.log(token);
-        const decoded = jwt.verify(token, kunci);
+        const decoded = jwt.verify(token, "DJAWAADALAHKJOENCI"); //JANGAN LUPA UPDATE KE DYNAMIC SECRET
         // console.log(decoded);
         const user = await User.findOne({
             _id: decoded._id,
@@ -23,7 +21,7 @@ const auth = async(req, res, next) => {
         req.user.token = token;
         next();
     } catch (err) {
-        res.send({ error: "Please authenticate!" }); //di suruh relogin
+        res.status(401).send({ error: "Please authenticate!" });
     }
 };
 

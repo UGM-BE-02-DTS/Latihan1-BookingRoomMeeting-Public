@@ -68,9 +68,14 @@ roomRouter.post("/rooms/upload", auth, adminRole('admin'), upload.single('photo'
 })
 
 //create rooms
-roomRouter.post("/rooms/", adminRole('admin'), async(req, res) => {
+roomRouter.post("/rooms/", auth, adminRole('admin'), async(req, res) => {
     try {
-        const room = new Room(req.body);
+        const room = new Room({
+            roomname: req.body.roomname,
+            roomdetail: req.body.roomdetail,
+            roomphoto: req.body.roomphoto,
+            iduser: req.user._id
+        });
         await room.save();
         res.status(201).send({ room });
     } catch (err) {
@@ -93,7 +98,7 @@ roomRouter.post("/rooms/", adminRole('admin'), async(req, res) => {
 
 
 // Update Room by ID
-roomRouter.patch("/rooms/:id", adminRole('admin'), async(req, res) => {
+roomRouter.patch("/rooms/:id", auth, adminRole('admin'), async(req, res) => {
     const updates = Object.keys(req.body);
     const allowedUpdates = ["roomname", "roomdetail", "roomphoto"];
     const isValidOperation = updates.every((update) =>
@@ -117,14 +122,15 @@ roomRouter.patch("/rooms/:id", adminRole('admin'), async(req, res) => {
 
 
 // Delete rooms
-roomRouter.delete("/rooms:id", adminRole('admin'), async(req, res) => {
-    const room = await Room.findByIdAndDelete(req.params._id);
+roomRouter.delete("/rooms/:id", auth, adminRole('admin'), async(req, res) => {
+    const room = await Room.findByIdAndDelete(req.params.id);
     try {
-        user ? res.status(204).send(room) : res.status(404).send();
+        room ? res.status(204).send(room) : res.status(404).send();
     } catch (err) {
         res.status(500).send(err.message);
     }
 });
+
 
 
 // get all rooms

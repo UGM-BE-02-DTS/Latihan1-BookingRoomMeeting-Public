@@ -153,7 +153,7 @@ router.delete("/users/me", auth, async(req, res) => {
 router.delete("/users/:id", auth, adminRole('admin'), async(req, res) => {
     const user = await User.findByIdAndDelete(req.params.id);
     try {
-        user ? res.status(204).send("userndeleted") : res.status(404).send();
+        user ? res.status(204).send(user) : res.status(404).send("user Not Found");
     } catch (err) {
         res.status(500).send("User not found / you not authorize");
     }

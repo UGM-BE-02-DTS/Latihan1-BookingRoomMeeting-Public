@@ -4,6 +4,7 @@ const multer = require('multer');
 const auth = require("../middleware/auth");
 
 
+
 const roomRouter = express.Router();
 
 
@@ -69,10 +70,11 @@ roomRouter.post("/rooms/upload", auth, adminRole('admin'), upload.single('photo'
 
 //create rooms
 roomRouter.post("/rooms/", auth, adminRole('admin'), async(req, res) => {
-    console.log("Test admin")
+    console.log(auth.token)
     try {
+
         const room = new Room({
-            ...req.body,
+            ...req.body
         });
         await room.save();
         res.status(201).json({
@@ -168,9 +170,9 @@ roomRouter.delete("/rooms/:id", auth, adminRole('admin'), async(req, res) => {
 
 
 
-//get list Rooms
+//get list 
 roomRouter.get("/rooms", auth, async(req, res) => {
-    const match = { booking: false };
+    //const match = { booking: false };
     const sort = {}
 
 
@@ -183,7 +185,7 @@ roomRouter.get("/rooms", auth, async(req, res) => {
         await req.user
             .populate({
                 path: "rooms",
-                match,
+                // match,
                 options: {
                     limit: parseInt(req.query.limit),
                     skip: parseInt(req.query.skip),

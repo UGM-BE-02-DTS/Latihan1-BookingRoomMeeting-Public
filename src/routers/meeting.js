@@ -1,11 +1,11 @@
 const express = require("express");
-const Room = require("../models/room");
+const Room = require("../models/meeting");
 const multer = require('multer');
 const auth = require("../middleware/auth");
 
 
 
-const roomRouter = express.Router();
+const meetingRouter = express.Router();
 
 
 //multer setup output dan filename
@@ -50,7 +50,7 @@ const adminRole = (...roles) => { //...spread operator extrak isi array
 
 //upload photo
 
-roomRouter.post("/rooms/upload", auth, adminRole('admin'), upload.single('photo'), (req, res, next) => {
+meetingRouter.post("/rooms/upload", auth, adminRole('admin'), upload.single('photo'), (req, res, next) => {
     console.log(req.file);
     if (!req.file) {
         res.status(500);
@@ -69,7 +69,7 @@ roomRouter.post("/rooms/upload", auth, adminRole('admin'), upload.single('photo'
 })
 
 //create rooms
-roomRouter.post("/rooms/", auth, adminRole('admin'), async(req, res) => {
+meetingRouter.post("/Meeting/", auth, adminRole('admin'), async(req, res) => {
     console.log(auth.token)
     try {
 
@@ -85,6 +85,8 @@ roomRouter.post("/rooms/", auth, adminRole('admin'), async(req, res) => {
                 roomdetail: room.roomdetail,
                 userid: room.userid,
                 meetingdate: room.meetingdate,
+                session: room.session,
+                iduser: room.iduser,
                 request: {
                     type: 'GET',
                     url: "http://localhost:3000/rooms/" + room._id
@@ -98,7 +100,7 @@ roomRouter.post("/rooms/", auth, adminRole('admin'), async(req, res) => {
 
 
 // Update Room by ID for admin
-roomRouter.patch("/admin/rooms/:id", auth, adminRole('admin'), async(req, res) => {
+meetingRouter.patch("/rooms/:id", auth, adminRole('admin'), async(req, res) => {
     const updates = Object.keys(req.body);
     const allowedUpdates = ["roomname", "roomdetail", "roomphoto", ];
     const isValidOperation = updates.every((update) =>
@@ -128,9 +130,9 @@ roomRouter.patch("/admin/rooms/:id", auth, adminRole('admin'), async(req, res) =
 });
 
 //update rooms for user
-roomRouter.patch("/rooms/:id", auth, async(req, res) => {
+meetingRouter.patch("/meeting/:id", auth, async(req, res) => {
     const updates = Object.keys(req.body);
-    const allowedUpdates = ["roomdetail", "roomphoto", "meetingdetail"];
+    const allowedUpdates = ["meetingdetail", "meetingtitle"];
     const isValidOperation = updates.every((update) =>
         allowedUpdates.includes(update)
     );
@@ -159,7 +161,7 @@ roomRouter.patch("/rooms/:id", auth, async(req, res) => {
 
 
 // Delete rooms
-roomRouter.delete("/rooms/:id", auth, adminRole('admin'), async(req, res) => {
+meetingRouter.delete("/rooms/:id", auth, adminRole('admin'), async(req, res) => {
     const room = await Room.findByIdAndDelete(req.params.id);
     try {
         room ? res.status(204).send(room) : res.status(404).send();
@@ -168,39 +170,26 @@ roomRouter.delete("/rooms/:id", auth, adminRole('admin'), async(req, res) => {
     }
 });
 
-
-
-//get list 
-roomRouter.get("/rooms", auth, async(req, res) => {
-    //const match = { booking: false };
-    const sort = {}
-
-
-    if (req.query.sortBy) {
-        const parts = req.query.sortBy.split(":");
-        sort[parts[0]] = parts[1] === "desc" ? -1 : 1;
-    }
-
+//get all list 
+meetingRouter.get("/meeting/all", auth, async(req, res) => {
     try {
-        await req.user
-            .populate({
-                path: "rooms",
-                // match,
-                options: {
-                    limit: parseInt(req.query.limit),
-                    skip: parseInt(req.query.skip),
-                    sort,
-                },
-            })
-            .execPopulate();
-        req.user.rooms ? res.send(req.user.rooms) : res.status(404).send();
+        const room = await Room.find({});
+        room ? res.status(200).json({
+            room,
+            ViewPhoto: {
+                request: {
+                    type: 'GET',
+                    url: 'http://localhost:3000/uploads/' + room.roomphoto
+                }
+            }
+        }) : res.status(404).send();
     } catch (err) {
-        res.status(500).send(err.message)
+        res.status(500).send(err.message);
     }
 });
 
 //get rooms by id
-roomRouter.get("/rooms/:id", async(req, res) => {
+meetingRouter.get("/meeting/:id", async(req, res) => {
     const _id = req.params.id;
     try {
         const room = await Room.findById(_id);
@@ -218,4 +207,4 @@ roomRouter.get("/rooms/:id", async(req, res) => {
     }
 });
 
-module.exports = roomRouter;
+module.exports = meetingRouter;

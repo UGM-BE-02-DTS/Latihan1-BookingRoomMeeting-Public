@@ -2,7 +2,7 @@ const express = require("express");
 const morgan = require("morgan");
 require("./db/mongoose");
 const userRouter = require("./routers/user");
-const roomRouter = require("./routers/room");
+const roomRouter = require("./routers/meeting");
 const bookRouter = require("./routers/booking");
 const bodyParser = require("body-parser");
 

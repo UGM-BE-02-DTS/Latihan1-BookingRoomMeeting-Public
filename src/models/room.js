@@ -10,12 +10,12 @@ const roomSchema = new mongoose.Schema({
         required: [true, "Please input room detail!"]
     },
     roomphoto: {
-        type: String, //string dulu ntar di update 
+        type: String,
         required: [true, "Please upload room photo!"]
     },
     iduser: {
-        type: String, //tambah untuk history yang input
-        required: [true, "Please relogin!"] // gak perlu kayak nya cuma tambahin aja
+        type: String,
+        required: [true, "Please relogin!"]
     },
     booking: {
         type: Boolean,
@@ -35,7 +35,20 @@ const roomSchema = new mongoose.Schema({
         type: String,
         trim: true,
         required: [true, "Please tell your session!"],
-    }
+    },
+    meetingDetail: {
+        type: String,
+        trim: true,
+        default: "any",
+    },
+    meetingtitle: {
+        type: String,
+        trim: true,
+        default: "any",
+    },
+
+
+
 }, { timestamps: true });
 
 const Room = mongoose.model('Room', roomSchema);

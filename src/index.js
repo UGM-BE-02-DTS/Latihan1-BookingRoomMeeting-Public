@@ -5,7 +5,7 @@ const userRouter = require("./routers/user");
 const roomRouter = require("./routers/room");
 const bookRouter = require("./routers/booking");
 const bodyParser = require("body-parser");
-//const fileupload = require("express-fileupload");
+
 
 
 
@@ -23,6 +23,12 @@ app.use(userRouter);
 app.use(roomRouter);
 app.use(bookRouter);
 
+//for testing
+app.get('/', (req, res, next) => {
+    res.json({
+        message: 'success'
+    })
+})
 
 // tambah path router booking dimari
 

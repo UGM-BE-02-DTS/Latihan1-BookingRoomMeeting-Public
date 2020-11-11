@@ -82,7 +82,7 @@ roomRouter.post("/rooms/", auth, adminRole('admin'), async(req, res) => {
                 roomname: room.roomname,
                 roomdetail: room.roomdetail,
                 userid: room.userid,
-
+                meetingdate: room.meetingdate,
                 request: {
                     type: 'GET',
                     url: "http://localhost:3000/rooms/" + room._id
@@ -95,8 +95,8 @@ roomRouter.post("/rooms/", auth, adminRole('admin'), async(req, res) => {
 });
 
 
-// Update Room by ID
-roomRouter.patch("/rooms/:id", auth, adminRole('admin'), async(req, res) => {
+// Update Room by ID for admin
+roomRouter.patch("/admin/rooms/:id", auth, adminRole('admin'), async(req, res) => {
     const updates = Object.keys(req.body);
     const allowedUpdates = ["roomname", "roomdetail", "roomphoto", ];
     const isValidOperation = updates.every((update) =>
@@ -125,6 +125,37 @@ roomRouter.patch("/rooms/:id", auth, adminRole('admin'), async(req, res) => {
     }
 });
 
+//update rooms for user
+roomRouter.patch("/rooms/:id", auth, async(req, res) => {
+    const updates = Object.keys(req.body);
+    const allowedUpdates = ["roomdetail", "roomphoto", "meetingdetail"];
+    const isValidOperation = updates.every((update) =>
+        allowedUpdates.includes(update)
+    );
+    if (!isValidOperation) {
+        return res.status(400).send();
+    }
+
+    try {
+        const room = await Room.findById(req.params.id);
+        updates.forEach((update) => (room[update] = req.body[update]));
+
+        await room.save();
+        room ? res.status(200).json({
+            room,
+            ViewPhoto: {
+                request: {
+                    type: 'GET',
+                    url: 'http://localhost:3000/uploads/' + room.roomphoto
+                }
+            }
+        }) : res.status(404).send();
+    } catch (err) {
+        res.status(500).send(err.message);
+    }
+});
+
+
 // Delete rooms
 roomRouter.delete("/rooms/:id", auth, adminRole('admin'), async(req, res) => {
     const room = await Room.findByIdAndDelete(req.params.id);
@@ -137,11 +168,7 @@ roomRouter.delete("/rooms/:id", auth, adminRole('admin'), async(req, res) => {
 
 
 
-// get all rooms
-// GET /rooms?booking=false // true
-// GET /rooms?limit=integer&skip=integer
-// Get /rooms?sortBy=createdAt:asc // desc
-// Example /rooms?booking=false&limit=2&skip=2&sortBy=createdAt:asc
+//get list Rooms
 roomRouter.get("/rooms", auth, async(req, res) => {
     const match = { booking: false };
     const sort = {}
@@ -170,6 +197,7 @@ roomRouter.get("/rooms", auth, async(req, res) => {
     }
 });
 
+//get rooms by id
 roomRouter.get("/rooms/:id", async(req, res) => {
     const _id = req.params.id;
     try {

@@ -51,19 +51,17 @@ const userSchema = new mongoose.Schema({
             }
         },
     },
-    tokens: [
-        {
-            token: {
-                type: String,
-                required: true,
-            },
+    tokens: [{
+        token: {
+            type: String,
+            required: true,
         },
-    ],
-    reference:{
+    }, ],
+    reference: {
         type: String,
-        default:"any"
+        default: "any"
     }
-},{timestamps:true});
+}, { timestamps: true });
 
 userSchema.virtual("rooms", {
     ref: "Room",
@@ -71,10 +69,9 @@ userSchema.virtual("rooms", {
     foreignField: "reference",
 });
 
-userSchema.methods.generateAuthToken = async function () {
+userSchema.methods.generateAuthToken = async function() {
     const user = this;
     const token = jwt.sign({ _id: user._id.toString() }, "DJAWAADALAHKJOENCI", {
-        //JANGAN LUPA UPDATE KE DYNAMIC SECRET
         expiresIn: "7 days", // kalau mau ganti pake grammer english
     });
 
@@ -83,7 +80,7 @@ userSchema.methods.generateAuthToken = async function () {
     return token;
 };
 
-userSchema.methods.toJSON = function () {
+userSchema.methods.toJSON = function() {
     const user = this;
     const userObject = user.toObject();
 
@@ -97,7 +94,7 @@ userSchema.methods.toJSON = function () {
 };
 
 //LOGIC CEK LOGIN
-userSchema.statics.findByCredentials = async (email, password) => {
+userSchema.statics.findByCredentials = async(email, password) => {
     const user = await User.findOne({ email });
 
     if (!user) {
@@ -114,7 +111,7 @@ userSchema.statics.findByCredentials = async (email, password) => {
 };
 
 //midleware buat hashing password
-userSchema.pre("save", async function (next) {
+userSchema.pre("save", async function(next) {
     const user = this;
     console.log(user);
     if (user.isModified("password")) {

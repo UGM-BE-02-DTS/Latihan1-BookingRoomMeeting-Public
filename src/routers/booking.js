@@ -6,10 +6,13 @@ const bookRouter = express.Router();
 
 
 // Create Booking
-bookRouter.patch("/booking-room/:id", auth, async(req, res) => {
+bookRouter.patch("/booking-room/:id/:tittle/:detail", auth, async(req, res) => {
     try {
         const bookingRoom = await Room.findById(req.params.id);
         bookingRoom.booking = true
+        bookingRoom.meetingtitle = req.params.tittle
+        bookingRoom.meetingDetail = req.params.detail
+        bookingRoom.reference = auth.token
 
         await bookingRoom.save();
         bookingRoom ? res.status(200).send(bookingRoom) : res.status(404).send();

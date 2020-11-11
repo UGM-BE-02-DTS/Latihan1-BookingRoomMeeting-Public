@@ -36,7 +36,7 @@ const roomSchema = new mongoose.Schema({
         trim: true,
         required: [true, "Please tell your session!"],
     },
-    meetingDetail: {
+    meetingdetail: {
         type: String,
         trim: true,
         default: "any",

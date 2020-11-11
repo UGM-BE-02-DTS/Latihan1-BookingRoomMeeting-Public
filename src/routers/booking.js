@@ -11,7 +11,7 @@ bookRouter.patch("/booking-room/:id", auth, async(req, res) => {
         const bookingRoom = await Room.findById(req.params.id);
         bookingRoom.booking = true,
             bookingRoom.meetingtitle = req.body.tittle,
-            bookingRoom.meetingDetail = req.body.detail,
+            bookingRoom.meetingdetail = req.body.detail,
             bookingRoom.userid = auth.token
 
         await bookingRoom.save();
